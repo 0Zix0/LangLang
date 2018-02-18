@@ -10,10 +10,12 @@ public class Module {
 	private List<String> program;
 	private Map<String, Function> functions = new HashMap<String, Function>();
 	private LRuntime runtime;
+	private String name;
 	
-	public Module(List<String> program, LRuntime runtime) {
+	public Module(List<String> program, LRuntime runtime, String name) {
 		this.program = program;
 		this.runtime = runtime;
+		this.name = name;
 		process();
 	}
 	
@@ -35,14 +37,12 @@ public class Module {
 				} else if(line.charAt(0) == '>') {
 					inFunction = true;
 					functionName = line.replace(">", "");
-					System.out.println("Start function: " + functionName);
 				}	
 			} else {
 				if(line.charAt(0) == '>') {
-					functions.put(functionName, new Function(currentFunction));
+					functions.put(functionName, Function.construct(currentFunction, this));
 					currentFunction = new ArrayList<String>();
 					inFunction = false;
-					System.out.println("Ending function: " + functionName);
 				} else {
 					currentFunction.add(line);
 				}
@@ -54,9 +54,17 @@ public class Module {
 		return functions.get(name);
 	}
 	
+	public String getName() {
+		return name;
+	}
+	
 	public void printFunctions() {
 		for(String name : functions.keySet()) {
-			System.out.println("  func: " + name + ", " + functions.get(name).getLines().size() + " lines.");
+			System.out.println("  func: " + name + ", " + functions.get(name).getInstructions().size() + " instructions.");
 		}
+	}
+	
+	public LRuntime getRuntime() {
+		return runtime;
 	}
 }
